@@ -17,7 +17,7 @@ php artisan serve
 在继续操作之前, 请先安装其他一些库, 稍后将使用这些库:
 
 - [oauth2-](https://github.com/thephpleague/oauth2-client)处理登录和 OAuth 令牌流的客户端。
-- [microsoft](https://github.com/microsoftgraph/msgraph-sdk-php) graph, 用于调用 microsoft graph。
+- [Microsoft](https://github.com/microsoftgraph/msgraph-sdk-php) graph, 用于调用 microsoft graph。
 
 在 CLI 中运行以下命令。
 

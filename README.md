@@ -1,4 +1,4 @@
-# <a name="microsoft-graph-training-module---build-php-apps-with-microsoft-graph"></a>microsoft graph 培训模块-使用 Microsoft graph 构建 PHP 应用
+# <a name="microsoft-graph-training-module---build-php-apps-with-microsoft-graph"></a>Microsoft Graph 培训模块-使用 Microsoft Graph 构建 PHP 应用
 
 本模块将介绍如何通过构建 PHP web 应用程序, 使用 Microsoft Graph 访问 Office 365 中的数据。
 
