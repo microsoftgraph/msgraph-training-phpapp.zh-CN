@@ -1,23 +1,23 @@
 <!-- markdownlint-disable MD002 MD041 -->
 
-打开命令行接口 (CLI), 导航到您有权创建文件的目录, 并运行以下命令以创建新的 PHP 应用程序。
+打开命令行接口（CLI），导航到您有权创建文件的目录，并运行以下命令以创建新的 PHP 应用程序。
 
 ```Shell
 laravel new graph-tutorial
 ```
 
-Laravel 创建一个名`graph-tutorial`为和搭建基架 PHP 应用程序的新目录。 导航到此新目录, 然后输入以下命令以启动本地 web 服务器。
+Laravel 创建一个名`graph-tutorial`为和搭建基架 PHP 应用程序的新目录。 导航到此新目录，然后输入以下命令以启动本地 web 服务器。
 
 ```Shell
 php artisan serve
 ```
 
-打开浏览器，并导航到 `http://localhost:8000`。 如果一切正常, 您将看到一个默认的 Laravel 页面。 如果看不到该页面, 请查看[Laravel 文档](https://laravel.com/docs/5.6)。
+打开浏览器，并导航到 `http://localhost:8000`。 如果一切正常，您将看到一个默认的 Laravel 页面。 如果看不到该页面，请查看[Laravel 文档](https://laravel.com/docs/6.0)。
 
-在继续操作之前, 请先安装其他一些库, 稍后将使用这些库:
+在继续操作之前，请先安装其他一些库，稍后将使用这些库：
 
 - [oauth2-](https://github.com/thephpleague/oauth2-client)处理登录和 OAuth 令牌流的客户端。
-- [Microsoft](https://github.com/microsoftgraph/msgraph-sdk-php) graph, 用于调用 microsoft graph。
+- [Microsoft](https://github.com/microsoftgraph/msgraph-sdk-php) graph，用于调用 microsoft graph。
 
 在 CLI 中运行以下命令。
 
@@ -27,7 +27,7 @@ composer require league/oauth2-client:dev-master microsoft/microsoft-graph
 
 ## <a name="design-the-app"></a>设计应用程序
 
-首先, 创建应用的全局布局。 在名为`./resources/views` `layout.blade.php`的目录中创建一个新文件, 并添加以下代码。
+首先，创建应用的全局布局。 在名为`./resources/views` `layout.blade.php`的目录中创建一个新文件，并添加以下代码。
 
 ```php
 <!DOCTYPE html>
@@ -114,9 +114,9 @@ composer require league/oauth2-client:dev-master microsoft/microsoft-graph
 </html>
 ```
 
-此代码添加简单样式的[引导](http://getbootstrap.com/), 并添加一些简单图标的[字体](https://fontawesome.com/)。 它还定义具有导航栏的全局布局。
+此代码添加简单样式的[引导](http://getbootstrap.com/)，并添加一些简单图标的[字体](https://fontawesome.com/)。 它还定义具有导航栏的全局布局。
 
-现在打开`./public/css/app.css`并将其全部内容替换为以下内容。
+在`./public`名为`css`的目录中创建一个新目录，然后在名为`./public/css` `app.css`的目录中创建一个新文件。 添加以下代码。
 
 ```css
 body {
@@ -130,7 +130,7 @@ body {
 }
 ```
 
-现在更新默认页面。 打开`./resources/views/welcome.blade.php`文件, 并将其内容替换为以下内容。
+现在更新默认页面。 打开`./resources/views/welcome.blade.php`文件，并将其内容替换为以下内容。
 
 ```php
 @extends('layout')
@@ -149,7 +149,7 @@ body {
 @endsection
 ```
 
-通过将以下`Controller`函数添加`./app/Http/Controllers/Controller.php`到类中, 在中更新基类。
+通过将以下`Controller`函数添加`./app/Http/Controllers/Controller.php`到类中，在中更新基类。
 
 ```php
 public function loadViewData()
@@ -173,7 +173,7 @@ public function loadViewData()
 }
 ```
 
-接下来, 为主页添加一个控制器。 在名为`./app/Http/Controllers` `HomeController.php`的目录中创建一个新文件, 并添加以下代码。
+接下来，为主页添加一个控制器。 在名为`./app/Http/Controllers` `HomeController.php`的目录中创建一个新文件，并添加以下代码。
 
 ```php
 <?php
@@ -194,7 +194,7 @@ class HomeController extends Controller
 }
 ```
 
-最后, 更新中`./routes/web.php`的路由以使用新的控制器。 将此文件的全部内容替换为以下内容。
+最后，更新中`./routes/web.php`的路由以使用新的控制器。 将此文件的全部内容替换为以下内容。
 
 ```php
 <?php
@@ -202,6 +202,6 @@ class HomeController extends Controller
 Route::get('/', 'HomeController@welcome');
 ```
 
-保存所有更改, 然后重新启动服务器。 现在, 应用程序看起来应非常不同。
+保存所有更改，然后重新启动服务器。 现在，应用程序看起来应非常不同。
 
 ![重新设计的主页的屏幕截图](./images/create-app-01.png)
