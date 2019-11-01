@@ -1,8 +1,8 @@
 <!-- markdownlint-disable MD002 MD041 -->
 
-在本练习中, 你将扩展上一练习中的应用程序, 以支持 Azure AD 的身份验证。 若要获取所需的 OAuth 访问令牌以调用 Microsoft Graph, 这是必需的。 在此步骤中, 将[oauth2-客户端](https://github.com/thephpleague/oauth2-client)库集成到应用程序中。
+在本练习中，你将扩展上一练习中的应用程序，以支持 Azure AD 的身份验证。 若要获取所需的 OAuth 访问令牌以调用 Microsoft Graph，这是必需的。 在此步骤中，将[oauth2-客户端](https://github.com/thephpleague/oauth2-client)库集成到应用程序中。
 
-打开 PHP `.env`应用程序的根目录中的文件, 并将以下代码添加到该文件的末尾。
+打开 PHP `.env`应用程序的根目录中的文件，并将以下代码添加到该文件的末尾。
 
 ```text
 OAUTH_APP_ID=YOUR_APP_ID_HERE
@@ -14,14 +14,14 @@ OAUTH_AUTHORIZE_ENDPOINT=/oauth2/v2.0/authorize
 OAUTH_TOKEN_ENDPOINT=/oauth2/v2.0/token
 ```
 
-将`YOUR APP ID HERE`替换为应用程序注册门户中的应用程序 ID, `YOUR APP SECRET HERE`并将替换为您生成的密码。
+将`YOUR APP ID HERE`替换为应用程序注册门户中的应用程序 ID， `YOUR APP SECRET HERE`并将替换为您生成的密码。
 
 > [!IMPORTANT]
-> 如果您使用的是源代码管理 (如 git), 现在可以从源代码管理中排除`.env`该文件, 以避免无意中泄漏您的应用程序 ID 和密码。
+> 如果您使用的是源代码管理（如 git），现在可以从源代码管理中排除`.env`该文件，以避免无意中泄漏您的应用程序 ID 和密码。
 
 ## <a name="implement-sign-in"></a>实施登录
 
-在名为`./app/Http/Controllers` `AuthController.php`的目录中创建一个新文件, 并添加以下代码。
+在名为`./app/Http/Controllers` `AuthController.php`的目录中创建一个新文件，并添加以下代码。
 
 ```PHP
 <?php
@@ -62,7 +62,13 @@ class AuthController extends Controller
     $request->session()->forget('oauthState');
     $providedState = $request->query('state');
 
-    if (!isset($expectedState) || !isset($providedState) || $expectedState != $providedState) {
+    if (!isset($expectedState)) {
+      // If there is no expected state in the session,
+      // do nothing and redirect to the home page.
+      return redirect('/');
+    }
+
+    if (!isset($providedState) || $expectedState != $providedState) {
       return redirect('/')
         ->with('error', 'Invalid auth state')
         ->with('errorDetail', 'The provided auth state did not match the expected value');
@@ -107,24 +113,24 @@ class AuthController extends Controller
 }
 ```
 
-这将定义包含两个操作的`signin`控制器`callback`: 和。
+这将定义包含两个操作的`signin`控制器`callback`：和。
 
-该`signin`操作将生成 Azure AD 登录 URL, 保存 OAuth `state`客户端生成的值, 然后将浏览器重定向到 Azure AD 登录页。
+该`signin`操作将生成 Azure AD 登录 URL，保存 OAuth `state`客户端生成的值，然后将浏览器重定向到 Azure AD 登录页。
 
-`callback`操作是 Azure 在登录完成后重定向的位置。 该操作确保`state`值与保存的值相匹配, 然后由 Azure 发送的授权代码请求访问令牌。 然后, 它使用临时错误值中的访问令牌重定向回主页。 在继续操作之前, 我们将使用此操作来验证登录是否正常工作。 在测试之前, 我们需要将路由添加到`./routes/web.php`。
+`callback`操作是 Azure 在登录完成后重定向的位置。 该操作确保`state`值与保存的值相匹配，然后由 Azure 发送的授权代码请求访问令牌。 然后，它使用临时错误值中的访问令牌重定向回主页。 在继续操作之前，我们将使用此操作来验证登录是否正常工作。 在测试之前，我们需要将路由添加到`./routes/web.php`。
 
 ```PHP
 Route::get('/signin', 'AuthController@signin');
 Route::get('/callback', 'AuthController@callback');
 ```
 
-启动服务器并浏览到`https://localhost:8000`。 单击 "登录" 按钮, 您应会被重定向`https://login.microsoftonline.com`到。 使用你的 Microsoft 帐户登录, 并同意请求的权限。 浏览器重定向到应用程序, 并显示令牌。
+启动服务器并浏览到`https://localhost:8000`。 单击 "登录" 按钮，您应会被重定向`https://login.microsoftonline.com`到。 使用你的 Microsoft 帐户登录，并同意请求的权限。 浏览器重定向到应用程序，并显示令牌。
 
 ### <a name="get-user-details"></a>获取用户详细信息
 
 更新中`callback` `/app/Http/Controllers/AuthController.php`的方法以从 Microsoft Graph 获取用户的配置文件。
 
-首先, 将以下`use`语句添加到文件顶部的`namespace App\Http\Controllers;`行下方。
+首先，将以下`use`语句添加到文件顶部的`namespace App\Http\Controllers;`行下方。
 
 ```php
 use Microsoft\Graph\Graph;
@@ -154,13 +160,13 @@ try {
 }
 ```
 
-新代码创建一个`Graph`对象, 分配访问令牌, 然后使用该令牌请求用户的配置文件。 它将用户的显示名称添加到临时输出中进行测试。
+新代码创建一个`Graph`对象，分配访问令牌，然后使用该令牌请求用户的配置文件。 它将用户的显示名称添加到临时输出中进行测试。
 
 ## <a name="storing-the-tokens"></a>存储令牌
 
-现在, 您可以获取令牌, 现在是时候实现将它们存储在应用程序中的方法了。 由于这是一个示例应用程序, 因此为简单起见, 你将把它们存储在会话中。 实际应用程序将使用更可靠的安全存储解决方案, 就像数据库一样。
+现在，您可以获取令牌，现在是时候实现将它们存储在应用程序中的方法了。 由于这是一个示例应用程序，因此为简单起见，你将把它们存储在会话中。 实际应用程序将使用更可靠的安全存储解决方案，就像数据库一样。
 
-在名为`./app` `TokenStore`的目录中创建一个新目录, 然后在名为`TokenCache.php`的目录中创建一个新文件, 并添加以下代码。
+在名为`./app` `TokenStore`的目录中创建一个新目录，然后在名为`TokenCache.php`的目录中创建一个新文件，并添加以下代码。
 
 ```php
 <?php
@@ -199,15 +205,15 @@ class TokenCache {
 }
 ```
 
-然后, 更新`AuthController`类`callback`中的函数以存储会话中的标记, 并重定向回主页面。
+然后，更新`AuthController`类`callback`中的函数以存储会话中的标记，并重定向回主页面。
 
-首先, 将以下`use`语句添加到`./app/Http/Controllers/AuthController.php` `namespace App\Http\Controllers;`行下方的顶部。
+首先，将以下`use`语句添加到`./app/Http/Controllers/AuthController.php` `namespace App\Http\Controllers;`行下方的顶部。
 
 ```php
 use App\TokenStore\TokenCache;
 ```
 
-然后, 将`try`现有`callback`函数中的块替换为以下项。
+然后，将`try`现有`callback`函数中的块替换为以下项。
 
 ```php
 try {
@@ -232,7 +238,7 @@ try {
 
 ## <a name="implement-sign-out"></a>实现注销
 
-在测试此新功能之前, 请添加一种注销方式。将以下操作添加到`AuthController`类中。
+在测试此新功能之前，请添加一种注销方式。将以下操作添加到`AuthController`类中。
 
 ```PHP
 public function signout()
@@ -249,7 +255,7 @@ public function signout()
 Route::get('/signout', 'AuthController@signout');
 ```
 
-重新启动服务器并完成登录过程。 您应该最后返回到主页, 但 UI 应更改以指示您已登录。
+重新启动服务器并完成登录过程。 您应该最后返回到主页，但 UI 应更改以指示您已登录。
 
 ![登录后主页的屏幕截图](./images/add-aad-auth-01.png)
 
@@ -259,9 +265,9 @@ Route::get('/signout', 'AuthController@signout');
 
 ## <a name="refreshing-tokens"></a>刷新令牌
 
-此时, 您的应用程序具有访问令牌, 该令牌是在 API `Authorization`调用的标头中发送的。 这是允许应用代表用户访问 Microsoft Graph 的令牌。
+此时，您的应用程序具有访问令牌，该令牌是在 API `Authorization`调用的标头中发送的。 这是允许应用代表用户访问 Microsoft Graph 的令牌。
 
-但是, 此令牌的生存期较短。 令牌在发出后会过期一小时。 这就是刷新令牌变得有用的地方。 刷新令牌允许应用在不要求用户重新登录的情况下请求新的访问令牌。 更新令牌管理代码以实现令牌刷新。
+但是，此令牌的生存期较短。 令牌在发出后会过期一小时。 这就是刷新令牌变得有用的地方。 刷新令牌允许应用在不要求用户重新登录的情况下请求新的访问令牌。 更新令牌管理代码以实现令牌刷新。
 
 打开`./app/TokenStore/TokenCache.php`并将以下函数添加到`TokenCache`类中。
 
@@ -275,7 +281,7 @@ public function updateTokens($accessToken) {
 }
 ```
 
-然后, 将现有`getAccessToken`函数替换为以下函数。
+然后，将现有`getAccessToken`函数替换为以下函数。
 
 ```php
 public function getAccessToken() {
@@ -324,4 +330,4 @@ public function getAccessToken() {
 }
 ```
 
-此方法首先检查访问令牌是否已过期或接近即将过期。 如果是, 则它使用刷新令牌获取新令牌, 然后更新缓存并返回新的访问令牌。
+此方法首先检查访问令牌是否已过期或接近即将过期。 如果是，则它使用刷新令牌获取新令牌，然后更新缓存并返回新的访问令牌。
