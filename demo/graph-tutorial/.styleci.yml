@@ -1,0 +1,20 @@
+### YamlMime:Yaml
+ms.openlocfilehash: 679bfae77d86a466c88f8b69cb09b2d0681cbe4f
+ms.sourcegitcommit: 747e6668d3d217367634b31f2ca475e22ae71fa9
+ms.translationtype: MT
+ms.contentlocale: zh-CN
+ms.lasthandoff: 04/21/2020
+ms.locfileid: "43612951"
+php:
+  preset: laravel
+  disabled:
+  - unused_use
+  finder:
+    not-name:
+    - index.php
+    - server.php
+js:
+  finder:
+    not-name:
+    - webpack.mix.js
+css: true
