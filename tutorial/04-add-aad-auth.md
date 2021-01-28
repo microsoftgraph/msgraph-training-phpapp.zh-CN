@@ -4,16 +4,20 @@
 
 1. 打开 PHP 应用程序的根中的 **.env** 文件，将以下代码添加到文件的末尾。
 
-    :::code language="ini" source="../demo/graph-tutorial/example.env" range="48-54":::
+    :::code language="ini" source="../demo/graph-tutorial/example.env" range="51-57":::
 
-1. 替换为 `YOUR_APP_ID_HERE` 应用程序注册门户中的应用程序 ID，并 `YOUR_APP_PASSWORD_HERE` 替换为生成的密码。
+1. 替换为 `YOUR_APP_ID_HERE` 应用程序注册门户中的应用程序 ID，并 `YOUR_APP_SECRET_HERE` 替换为生成的密码。
 
     > [!IMPORTANT]
     > 如果你使用的是源代码管理（如 git），那么现在应该将文件从源代码管理中排除，以避免意外泄露应用 ID 和 `.env` 密码。
 
+1. 在名为 **./config** 的文件夹中创建新文件 `azure.php` 并添加以下代码。
+
+    :::code language="php" source="../demo/graph-tutorial/config/azure.php":::
+
 ## <a name="implement-sign-in"></a>实现登录
 
-1. 在 **./app/Http/Controllers** 目录中创建一个名为的新文件 `AuthController.php` 并添加以下代码。
+1. 在名为 **./app/Http/Controllers** 目录中创建新文件 `AuthController.php` 并添加以下代码。
 
     ```php
     <?php
@@ -29,13 +33,13 @@
       {
         // Initialize the OAuth client
         $oauthClient = new \League\OAuth2\Client\Provider\GenericProvider([
-          'clientId'                => env('OAUTH_APP_ID'),
-          'clientSecret'            => env('OAUTH_APP_PASSWORD'),
-          'redirectUri'             => env('OAUTH_REDIRECT_URI'),
-          'urlAuthorize'            => env('OAUTH_AUTHORITY').env('OAUTH_AUTHORIZE_ENDPOINT'),
-          'urlAccessToken'          => env('OAUTH_AUTHORITY').env('OAUTH_TOKEN_ENDPOINT'),
+          'clientId'                => config('azure.appId'),
+          'clientSecret'            => config('azure.appSecret'),
+          'redirectUri'             => config('azure.redirectUri'),
+          'urlAuthorize'            => config('azure.authority').config('azure.authorizeEndpoint'),
+          'urlAccessToken'          => config('azure.authority').config('azure.tokenEndpoint'),
           'urlResourceOwnerDetails' => '',
-          'scopes'                  => env('OAUTH_SCOPES')
+          'scopes'                  => config('azure.scopes')
         ]);
 
         $authUrl = $oauthClient->getAuthorizationUrl();
@@ -71,13 +75,13 @@
         if (isset($authCode)) {
           // Initialize the OAuth client
           $oauthClient = new \League\OAuth2\Client\Provider\GenericProvider([
-            'clientId'                => env('OAUTH_APP_ID'),
-            'clientSecret'            => env('OAUTH_APP_PASSWORD'),
-            'redirectUri'             => env('OAUTH_REDIRECT_URI'),
-            'urlAuthorize'            => env('OAUTH_AUTHORITY').env('OAUTH_AUTHORIZE_ENDPOINT'),
-            'urlAccessToken'          => env('OAUTH_AUTHORITY').env('OAUTH_TOKEN_ENDPOINT'),
+            'clientId'                => config('azure.appId'),
+            'clientSecret'            => config('azure.appSecret'),
+            'redirectUri'             => config('azure.redirectUri'),
+            'urlAuthorize'            => config('azure.authority').config('azure.authorizeEndpoint'),
+            'urlAccessToken'          => config('azure.authority').config('azure.tokenEndpoint'),
             'urlResourceOwnerDetails' => '',
-            'scopes'                  => env('OAUTH_SCOPES')
+            'scopes'                  => config('azure.scopes')
           ]);
 
           try {
@@ -107,9 +111,9 @@
 
     这将使用两个操作定义控制器： `signin` 和 `callback` 。
 
-    该操作将生成 Azure AD 登录 URL，保存 OAuth 客户端生成的值，然后将浏览器重定向到 `signin` `state` Azure AD 登录页。
+    此操作将生成 Azure AD 登录 URL，保存 OAuth 客户端生成的值，然后将浏览器重定向到 `signin` `state` Azure AD 登录页。
 
-    此操作 `callback` 是 Azure 在登录完成后重定向的地方。 该操作确保值与保存的值匹配，然后用户获取 Azure 发送的授权代码 `state` ，以请求访问令牌。 然后，它会使用临时错误值中的访问令牌重定向回主页。 在继续之前，你将使用此验证登录是否正常工作。
+    此操作 `callback` 是 Azure 在登录完成后重定向的地方。 该操作确保值与保存的值匹配，然后用户获取 Azure 发送的授权代码， `state` 以请求访问令牌。 然后，它会使用临时错误值中的访问令牌重定向回主页。 在继续之前，你将使用此验证登录是否正常工作。
 
 1. 将路由添加到 **./routes/web.php**。
 
@@ -124,8 +128,8 @@
 
     - **保持对已授予** 其访问权限的数据的访问权限： () MSAL 请求获取此权限， `offline_access` 以便检索刷新令牌。
     - **登录并读取个人资料： ()** 此权限允许应用获取登录用户的 `User.Read` 配置文件和个人资料照片。
-    - **读取邮箱设置： ()** 此权限允许应用读取用户的邮箱设置，包括 `MailboxSettings.Read` 时区和时间格式。
-    - **具有对** 日历的完全访问权限： () 此权限允许应用读取用户日历上的事件、添加新事件和修改现有 `Calendars.ReadWrite` 事件。
+    - **读取邮箱设置： ()** 此权限允许应用读取用户的邮箱设置，包括时区 `MailboxSettings.Read` 和时间格式。
+    - **具有对** 日历的完全访问权限： () 此权限允许应用读取用户日历上的事件、添加新事件和 `Calendars.ReadWrite` 修改现有事件。
 
 1. 同意请求的权限。 浏览器重定向到应用，显示令牌。
 
@@ -246,7 +250,7 @@
 
 此时，应用程序具有访问令牌，该令牌在 API 调用 `Authorization` 标头中发送。 这是允许应用代表用户访问 Microsoft Graph 的令牌。
 
-但是，此令牌是短期的。 令牌在颁发后一小时过期。 刷新令牌在这里变得有用。 刷新令牌允许应用请求新的访问令牌，而无需用户重新登录。 更新令牌管理代码以实施令牌刷新。
+但是，此令牌是短期的。 令牌在颁发后一小时过期。 此时刷新令牌将变得有用。 刷新令牌允许应用请求新的访问令牌，而无需用户重新登录。 更新令牌管理代码以实施令牌刷新。
 
 1. 打开 **./app/TokenStore/TokenCache.php，** 将以下函数添加到 `TokenCache` 类中。
 
