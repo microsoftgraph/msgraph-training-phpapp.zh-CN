@@ -1,14 +1,14 @@
 ### YamlMime:Yaml
-ms.openlocfilehash: 679bfae77d86a466c88f8b69cb09b2d0681cbe4f
-ms.sourcegitcommit: 747e6668d3d217367634b31f2ca475e22ae71fa9
+ms.openlocfilehash: 284722497853518aaa1b76bde5eecc41f6922b1b
+ms.sourcegitcommit: edf2a9241075d5e489f0426412e828c53c8e25e7
 ms.translationtype: MT
 ms.contentlocale: zh-CN
-ms.lasthandoff: 04/21/2020
-ms.locfileid: "43612951"
+ms.lasthandoff: 01/27/2021
+ms.locfileid: "50031098"
 php:
   preset: laravel
   disabled:
-  - unused_use
+  - no_unused_imports
   finder:
     not-name:
     - index.php
